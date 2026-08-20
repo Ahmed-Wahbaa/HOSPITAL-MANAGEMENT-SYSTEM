@@ -61,24 +61,86 @@ private:
 
 public:
     // Constructor
-    Patient(int pid, string n, int a, string c);
+    Patient(int pid, string n, int a, string c) {
+    id = pid;
+    name = n;
+    age = a;
+    contact = c;
+    isAdmitted = false;
+    bill = 0;
+}
 
     // ========== ORIGINAL FEATURES ========== //
 
-    void admitPatient(RoomType type);
-    void dischargePatient();
+    void admitPatient(RoomType type) {
+    if (isAdmitted) {
+        cout << "Patient is already admitted." << endl;
+        return;
+    }
 
-    void addMedicalRecord(string record);
+    isAdmitted = true;
+    roomType = type;
+
+    addMedicalRecord("Patient admitted to hospital");
+
+    switch (type) {
+        case GENERAL_WARD:
+            addBill(500);
+            break;
+
+        case ICU:
+            addBill(3000);
+            break;
+
+        case PRIVATE_ROOM:
+            addBill(1500);
+            break;
+
+        case SEMI_PRIVATE:
+            addBill(1000);
+            break;
+    }
+}
+    void dischargePatient() {
+    if (!isAdmitted) {
+        cout << "Patient is not currently admitted." << endl;
+        return;
+    }
+
+    isAdmitted = false;
+    addMedicalRecord("Patient discharged from hospital");
+}
+
+    void addMedicalRecord(string record) {
+    medicalHistory.push(record);
+}
 
     void requestTest(string testName);
     string performTest();
 
-    void displayHistory();
+    void displayHistory() {
+    cout << "Medical History for " << name
+         << " (ID: " << id << "):" << endl;
 
-    int getId();
-    string getName();
+    stack<string> tempHistory = medicalHistory;
 
-    bool getAdmissionStatus();
+    while (!tempHistory.empty()) {
+        cout << "- " << tempHistory.top() << endl;
+        tempHistory.pop();
+    }
+}
+
+    int getId() {
+    return id;
+}
+
+string getName() {
+    return name;
+}
+
+    bool getAdmissionStatus() {
+    return isAdmitted;
+}
 
 
     // ========== NEW FEATURES ========== //
@@ -91,14 +153,34 @@ public:
     void displayPrescriptions();
 
     // Billing
-    void addBill(double amount);
-    double getBill();
-    void displayBill();
+    void addBill(double amount) {
+    bill += amount;
+}
+
+double getBill() {
+    return bill;
+}
+
+void displayBill() {
+    cout << "========== PATIENT BILL ==========" << endl;
+    cout << "Patient ID: " << id << endl;
+    cout << "Patient Name: " << name << endl;
+    cout << "Total Bill: $" << bill << endl;
+    cout << "==================================" << endl;
+}
 
     // Additional Getters
-    int getAge();
-    string getContact();
-    RoomType getRoomType();
+    int getAge() {
+    return age;
+}
+
+string getContact() {
+    return contact;
+}
+
+RoomType getRoomType() {
+    return roomType;
+}
 };
 
 
