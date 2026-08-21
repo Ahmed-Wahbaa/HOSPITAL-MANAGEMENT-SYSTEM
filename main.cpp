@@ -115,8 +115,23 @@ public:
     medicalHistory.push(record);
 }
 
-    void requestTest(string testName);
-    string performTest();
+    void requestTest(string testName){
+        testQueue.push(testName);
+        addMedicalRecord("Test requested: " + testName);
+
+    }
+    string performTest(){
+        if(testQueue.empty()){
+            return "No tests pending";
+        }
+        string testname =testQueue.front();
+        testQueue.pop();
+        addMedicalRecord("Test performed: " + testname);
+        addBill(300);
+        
+        return testname;
+
+    }
 
     void displayHistory() {
     cout << "Medical History for " << name
@@ -146,11 +161,40 @@ string getName() {
     // ========== NEW FEATURES ========== //
 
     // Medical Tests
-    void displayPendingTests();
+    void displayPendingTests(){
+        queue<string>tmp_testQ=testQueue;
+        cout<<"Pending Tests: "<<endl;
+        if(tmp_testQ.empty()){
+            cout<<"No tests pending"<<endl;
+            return;
+        }
+        while(!tmp_testQ.empty()){
+            cout<<"- "<<tmp_testQ.front()<<endl;
+            tmp_testQ.pop();
+
+        }
+    }
 
     // Prescriptions
-    void addPrescription(string medicine);
-    void displayPrescriptions();
+    void addPrescription(string medicine){
+        prescriptions.push_back(medicine);
+        addMedicalRecord("Prescription added: " + medicine);
+        addBill(100);
+    }
+    
+    void displayPrescriptions(){
+        if(prescriptions.empty()){
+            cout<<"No prescriptions."<<endl;
+            return;
+        }
+        cout<<"Prescriptions: "<<endl;
+        for (int i = 0; i < prescriptions.size(); i++)
+        {
+           cout<<"- "<<prescriptions[i]<<endl;
+        }
+        
+
+    }
 
     // Billing
     void addBill(double amount) {
