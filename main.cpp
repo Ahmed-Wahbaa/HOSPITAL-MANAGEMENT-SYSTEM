@@ -554,10 +554,15 @@ public:
     // Request Medical Test
     // ===================================================== //
 
-    void requestPatientTest(
-        int patientId,
-        string testName
-    );
+    void requestPatientTest(int patientId,string testName) {
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        p ->requestTest(testName);
+        cout << "Test requested " << endl;
+    }
 
 
     // =====================================================
@@ -565,9 +570,15 @@ public:
     // Perform Medical Test
     // ===================================================== //
 
-    void performPatientTest(
-        int patientId
-    );
+    void performPatientTest(int patientId){
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        string result = p ->performTest();
+        cout << "Test result and action: " << result << endl;
+    }
 
 
     // =====================================================
@@ -575,30 +586,43 @@ public:
     // Display Pending Tests
     // ===================================================== //
 
-    void displayPatientTests(
-        int patientId
-    );
-
+    void displayPatientTests(int patientId){
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        p -> displayPendingTests();
+    }
 
     // =====================================================
     // NEW FEATURE 8
     // Add Prescription
     // ===================================================== //
 
-    void prescribeMedicine(
-        int patientId,
-        string medicine
-    );
-
+    void prescribeMedicine(int patientId,string medicine){
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        p -> addPrescription(medicine);
+        cout << "Medicine prescribed " << endl;
+    }
 
     // =====================================================
     // NEW FEATURE 9
     // Display Prescriptions
     // ===================================================== //
 
-    void displayPrescriptions(
-        int patientId
-    );
+    void displayPrescriptions(int patientId){
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        p -> displayPrescriptions();
+    }
 
 
     // =====================================================
@@ -606,9 +630,14 @@ public:
     // Patient Bill
     // ===================================================== //
 
-    void displayPatientBill(
-        int patientId
-    );
+    void displayPatientBill(int patientId){
+        Patient* p = findPatient(patientId);
+        if (p == nullptr) {
+            cout << "Patient not found." << endl;
+            return;
+        }
+        p -> displayBill();
+    }
 
 
     // =====================================================
@@ -676,16 +705,38 @@ public:
     // Display All Patients
     // ===================================================== //
 
-    void displayAllPatients();
-
+    void displayAllPatients(){
+        cout << "Patients : " << endl;
+        if (patients.empty()) {
+            cout << "No patients registered." << endl;
+            return;
+        }
+        for (int i = 0; i < patients.size(); i++) {
+            cout << "ID: " << patients[i].getId()
+                << " | Name: " << patients[i].getName()
+                << " | Age: " << patients[i].getAge()
+                << " | Status: " << (patients[i].getAdmissionStatus() ? "Admitted" : "Not Admitted") << endl;
+        }
+    }
 
     // =====================================================
     // NEW FEATURE 16
     // Display All Doctors
     // ===================================================== //
 
-    void displayAllDoctors();
-
+    void displayAllDoctors(){
+        cout << "DOCTORS :" << endl;
+        if (doctors.empty()) {
+            cout << "No doctors registered." << endl;
+            return;
+        }
+        for (int i = 0; i < doctors.size(); i++) {
+            cout << "ID: " << doctors[i].getId()
+                << " | Name: " << doctors[i].getName()
+                << " | Department: " << doctors[i].getDepartment()
+                << " | Appointments: " << doctors[i].getAppointmentCount() << endl;
+        }
+    }
 
     // =====================================================
     // NEW FEATURE 17
@@ -723,7 +774,23 @@ public:
     // Hospital Statistics
     // ===================================================== //
 
-    void displayStatistics();
+    void displayStatistics(){
+        int admittedCount = 0;
+        double totalBills = 0;
+        for (int i = 0; i < patients.size(); i++) {
+            if (patients[i].getAdmissionStatus()) 
+            {admittedCount++;}
+            totalBills += patients[i].getBill();
+        }
+        cout << "Hospital statistics" << endl;
+        cout << "Total Patients: " << patients.size() << endl;
+        cout << "Total Doctors: " << doctors.size() << endl;
+        cout << "Admitted Patients: " << admittedCount << endl;
+        cout << "Waiting Emergencies: " << emergencyQueue.size() << endl;
+        cout << "Priority Emergencies: " << priorityEmergencyQueue.size() << endl;
+        cout << "Total Generated Bills: " << totalBills << endl;
+    }
+
 };
 
 
