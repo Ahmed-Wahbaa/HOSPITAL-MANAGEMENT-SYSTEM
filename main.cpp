@@ -128,7 +128,7 @@ public:
         testQueue.pop();
         addMedicalRecord("Test performed: " + testname);
         addBill(300);
-        
+
         return testname;
 
     }
@@ -181,7 +181,7 @@ string getName() {
         addMedicalRecord("Prescription added: " + medicine);
         addBill(100);
     }
-    
+
     void displayPrescriptions(){
         if(prescriptions.empty()){
             cout<<"No prescriptions."<<endl;
@@ -192,7 +192,7 @@ string getName() {
         {
            cout<<"- "<<prescriptions[i]<<endl;
         }
-        
+
 
     }
 
@@ -235,19 +235,19 @@ private:
     string name;
     Department department;
 
+    // Queue of patients waiting for doctor
     // Patients waiting for this doctor
     queue<int> appointmentQueue;
 
 public:
 
     // Constructor
+    Doctor(int did, string n, Department d);
     Doctor(int did, string n, Department d) {
         id = did;
         name = n;
         department = d;
-    }
-
-    // Add appointment
+        // Add appointment
     void addAppointment(int patientId) {
         appointmentQueue.push(patientId);
     }
@@ -257,10 +257,8 @@ public:
         if (appointmentQueue.empty()) {
             return -1;
         }
-
         int patientId = appointmentQueue.front();
         appointmentQueue.pop();
-
         return patientId;
     }
 
@@ -275,14 +273,12 @@ public:
         bool found = false;
 
         while (!appointmentQueue.empty()) {
-
             int current = appointmentQueue.front();
             appointmentQueue.pop();
 
             if (current == patientId && !found) {
                 found = true;
-            }
-            else {
+            } else {
                 temp.push(current);
             }
         }
@@ -291,8 +287,7 @@ public:
 
         if (found) {
             cout << "Appointment cancelled successfully." << endl;
-        }
-        else {
+        } else {
             cout << "Appointment not found." << endl;
         }
     }
@@ -305,55 +300,32 @@ public:
         }
 
         queue<int> temp = appointmentQueue;
-
         cout << "Appointment Queue:" << endl;
-
         while (!temp.empty()) {
-            cout << "- Patient ID: "
-                 << temp.front() << endl;
-
+            cout << "- Patient ID: " << temp.front() << endl;
             temp.pop();
         }
     }
-
-    // Getters
-    int getId() {
-        return id;
     }
 
-    string getName() {
-        return name;
+    // ========== ORIGINAL FEATURES ========== //
+    
+  
+};
+
+class EmergencyCase {
+public:
+    int patientId;
+    int severity; // 1 = highest priority
+
+    EmergencyCase(int id, int s) {
+        patientId = id;
+        severity = s;
     }
 
-    string getDepartment() {
-
-        switch (department) {
-        case CARDIOLOGY:
-            return "Cardiology";
-
-        case NEUROLOGY:
-            return "Neurology";
-
-        case ORTHOPEDICS:
-            return "Orthopedics";
-
-        case PEDIATRICS:
-            return "Pediatrics";
-
-        case EMERGENCY:
-            return "Emergency";
-
-        case GENERAL:
-            return "General";
-
-        default:
-            return "Unknown";
-        }
-    }
-
-    // Number of waiting patients
-    int getAppointmentCount() {
-        return appointmentQueue.size();
+    // Overload < operator for Priority Queue
+    bool operator<(const EmergencyCase& other) const {
+        return severity > other.severity;
     }
 };
 
@@ -409,12 +381,12 @@ public:
         }
 
     int addDoctor(string name, Department dept){
-       
+
         doctors.push_back(Doctor(doctorCounter, name, dept));
         cout << "Doctor added with ID: " << doctorCounter << endl;
         return doctorCounter++;
     }
-        
+
 
     void admitPatient(  int patientId,RoomType type){
                // Check if patient exists
@@ -442,20 +414,34 @@ public:
 
     cout << "Patient admitted successfully." << endl;
     }
-        
-      
-    
 
-    void addEmergency(
-        int patientId
-    );
 
-    int handleEmergency();
 
-    void bookAppointment(
-        int doctorId,
-        int patientId
-    );
+
+    void addEmergency(int patientId){
+        emergencyQueue.push(patientId);
+        cout << "Emergency patient added: " << patientId << endl;
+    };
+
+    int handleEmergency(){
+        if (emergencyQueue.empty()) {
+            cout << "No emergency cases." << endl;
+            return -1;
+        }
+        int pId = emergencyQueue.front();
+        emergencyQueue.pop();
+        return pId;
+    };
+
+    void bookAppointment(int doctorId,int patientId ){
+        Doctor* doc = findDoctor(doctorId);
+        if (doc == nullptr) {
+            cout << "Doctor not found." << endl;
+            return;
+        }
+        doc->addAppointment(patientId);
+        cout << "Appointment booked successfully for Patient " << patientId << endl;
+    };
 
     void displayPatientInfo(
         int patientId
@@ -479,7 +465,7 @@ public:
         }
         return nullptr ;
     }
-       
+
 
 
     // =====================================================
@@ -495,8 +481,8 @@ public:
         }
         return nullptr ;
     }
-    
-     
+
+
 
 
     // =====================================================
@@ -505,7 +491,7 @@ public:
     // ===================================================== //
 
     void searchPatientByName(string name){
-        
+
         bool found=false;
         for(int i=0;i<patients.size();i++){
             if(patients[i].getName()==name){
@@ -518,8 +504,8 @@ public:
             cout<<"No patient found with name: "<<name<<endl;
         }
     }
-    
-     
+
+
 
 
     // =====================================================
@@ -545,8 +531,8 @@ public:
     cout << "Patient discharged successfully." << endl;
 
     }
-       
-    
+
+
 
 
     // =====================================================
@@ -645,10 +631,10 @@ public:
     // Priority Emergency
     // ===================================================== //
 
-    void addPriorityEmergency(
-        int patientId,
-        int severity
-    );
+    void addPriorityEmergency(int patientId,int severity){
+        priorityEmergencyQueue.push(EmergencyCase(patientId, severity));
+        cout << "Priority emergency added." << endl;
+    };
 
 
     // =====================================================
@@ -656,7 +642,15 @@ public:
     // Handle Priority Emergency
     // ===================================================== //
 
-    int handlePriorityEmergency();
+    int handlePriorityEmergency(){
+        if (priorityEmergencyQueue.empty()) {
+            cout << "No priority emergency cases." << endl;
+            return -1;
+        }
+        EmergencyCase topCase = priorityEmergencyQueue.top();
+        priorityEmergencyQueue.pop();
+        return topCase.patientId;
+    };
 
 
     // =====================================================
@@ -681,8 +675,8 @@ public:
 
     return false;
     }
-        
-   
+
+
 
 
     // =====================================================
